@@ -1,0 +1,17 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  errors:
+    unrelated_type_equality_checks: error
+  exclude:
+    - "build/**"
+    - "lib/doc/**"
+
+linter:
+  rules:
+    lines_longer_than_80_chars: false
+    public_member_api_docs: false
+    unrelated_type_equality_checks: true
