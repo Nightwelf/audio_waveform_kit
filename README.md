@@ -18,8 +18,7 @@ Add to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  audio_waveform_kit:
-    path: ../audio_waveform_kit  # or pub.dev version when published
+  audio_waveform_kit: ^1.0.0
 ```
 
 ### Permissions
