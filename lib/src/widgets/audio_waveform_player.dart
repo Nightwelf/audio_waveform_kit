@@ -1,20 +1,27 @@
+import 'dart:typed_data';
+
+import 'package:audio_waveform_kit/src/controllers/audio_player_bloc.dart';
+import 'package:audio_waveform_kit/src/utils/audio_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_player_bloc.dart';
-import 'package:voice_message/src/utils/audio_utils.dart';
 
-class VoiceMessagePlayer extends StatelessWidget {
-  const VoiceMessagePlayer({
+class AudioWaveformPlayer extends StatelessWidget {
+  const AudioWaveformPlayer({
     required this.filePath,
     super.key,
+    this.audioBytes,
   });
 
   final String filePath;
 
+  /// WAV-байты для воспроизведения на web. На нативных платформах не нужны.
+  final Uint8List? audioBytes;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AudioPlayerBloc(filePath: filePath),
+      create: (_) =>
+          AudioPlayerBloc(filePath: filePath, audioBytes: audioBytes),
       child: const _PlayerView(),
     );
   }

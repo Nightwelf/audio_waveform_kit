@@ -1,10 +1,8 @@
+import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/painters/logarithmic_spectrum_painter.dart';
+import 'package:audio_waveform_kit/src/painters/spectrum_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_recording_bloc.dart';
-import 'package:voice_message/src/models/spectrum_config.dart';
-import 'package:voice_message/src/painters/logarithmic_spectrum_painter.dart';
-import 'package:voice_message/src/painters/spectrum_painter.dart';
-import 'package:voice_message/src/services/spectrum_analyzer.dart';
 
 /// Real-time spectrogram that updates every audio chunk during recording.
 /// Bars reflect the actual sound level — no auto-normalization,
@@ -15,14 +13,12 @@ class LiveSpectrumDisplay extends StatelessWidget {
     this.height = 120.0,
     this.barColor,
     this.barSpacing = 1.0,
-    this.spectrumConfig = const SpectrumConfig(),
     this.logarithmic = true,
   });
 
   final double height;
   final Color? barColor;
   final double barSpacing;
-  final SpectrumConfig spectrumConfig;
 
   /// true — coloured log-scale bands (messenger style);
   /// false — linear with single colour.
@@ -31,6 +27,7 @@ class LiveSpectrumDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final config = context.read<AudioRecordingBloc>().spectrumConfig;
 
     return BlocBuilder<AudioRecordingBloc, AudioRecordingState>(
       buildWhen: (prev, curr) {
@@ -45,15 +42,11 @@ class LiveSpectrumDisplay extends StatelessWidget {
           return SizedBox(height: height);
         }
 
-        final linear = state.liveSpectrumData;
-        if (linear.isEmpty) return SizedBox(height: height);
-
-        final spectrum = logarithmic
-            ? SpectrumAnalyzer().toLogScale(linear, spectrumConfig)
-            : linear;
+        final spectrum = state.liveSpectrumData;
+        if (spectrum.isEmpty) return SizedBox(height: height);
 
         final color = barColor ?? theme.colorScheme.primary;
-        final minDb = -spectrumConfig.dynamicRangeDb;
+        final minDb = -config.dynamicRangeDb;
 
         return SizedBox(
           height: height,
@@ -64,9 +57,10 @@ class LiveSpectrumDisplay extends StatelessWidget {
                     spectrum: spectrum,
                     baseColor: color,
                     minDb: minDb,
-                    frequencyMin: spectrumConfig.frequencyMin,
-                    frequencyMax: spectrumConfig.frequencyMax,
-                    bands: spectrumConfig.frequencyBands,
+                    frequencyMin: config.frequencyMin,
+                    frequencyMax: config.frequencyMax,
+                    sampleRate: config.sampleRate,
+                    bands: config.frequencyBands,
                     barSpacing: barSpacing,
                   ),
                 )

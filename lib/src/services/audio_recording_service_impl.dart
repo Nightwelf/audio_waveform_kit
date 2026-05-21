@@ -1,32 +1,37 @@
+import 'dart:typed_data';
+
+import 'package:audio_waveform_kit/src/services/audio_recording_service.dart';
+import 'package:audio_waveform_kit/src/utils/audio_utils.dart';
+import 'package:audio_waveform_kit/src/utils/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-import 'package:voice_message/src/services/audio_recording_service.dart';
-import 'package:voice_message/src/utils/audio_utils.dart';
-import 'package:voice_message/src/utils/file_saver.dart';
 
 class AudioRecordingServiceImpl implements AudioRecordingService {
-  AudioRecordingServiceImpl() : _recorder = AudioRecorder();
+  AudioRecordingServiceImpl({this.sampleRate = 44100})
+      : _recorder = AudioRecorder();
 
+  final int sampleRate;
   final AudioRecorder _recorder;
-  final List<int> _pcmBytes = [];
+  final BytesBuilder _pcmBuilder = BytesBuilder(copy: false);
   bool _isRecording = false;
 
   @override
   Future<Stream<Uint8List>> startStream() async {
-    _pcmBytes.clear();
+    _pcmBuilder.clear();
     _isRecording = true;
 
     final stream = await _recorder.startStream(
-      const RecordConfig(
+      RecordConfig(
         encoder: AudioEncoder.pcm16bits,
         numChannels: 1,
+        sampleRate: sampleRate,
       ),
     );
 
     // Tap stream to accumulate raw PCM for spectrum analysis.
     return stream.map((chunk) {
-      _pcmBytes.addAll(chunk);
+      _pcmBuilder.add(chunk);
       return chunk;
     });
   }
@@ -45,13 +50,16 @@ class AudioRecordingServiceImpl implements AudioRecordingService {
 
     final dir = await getApplicationDocumentsDirectory();
     final path = '${dir.path}/vm_$timestamp.wav';
-    final wavBytes = AudioUtils.encodeWav(_pcmBytes, sampleRate: 44100);
+    final wavBytes = AudioUtils.encodeWav(
+      _pcmBuilder.toBytes(),
+      sampleRate: sampleRate,
+    );
     await saveBytes(path, wavBytes);
     return path;
   }
 
-  /// Raw PCM16LE bytes accumulated from the last recording session.
-  List<int> get recordedBytes => List.unmodifiable(_pcmBytes);
+  @override
+  Uint8List get recordedBytes => _pcmBuilder.toBytes();
 
   @override
   Future<void> dispose() async {

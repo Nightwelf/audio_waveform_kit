@@ -25,8 +25,8 @@ class TimelineSpectrumPainter extends CustomPainter {
     if (bands == 0) return;
 
     final centerY = size.height / 2;
-    final barWidth =
-        ((size.width - barSpacing * (frames - 1)) / frames).clamp(1.0, double.infinity);
+    final barWidth = ((size.width - barSpacing * (frames - 1)) / frames)
+        .clamp(1.0, double.infinity);
 
     // Pre-compute per-frame aggregate energy and spectral centroid.
     final energies = List<double>.filled(frames, 0);

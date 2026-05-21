@@ -1,5 +1,5 @@
-name: voice_message_example
-description: Example app for the voice_message package
+name: audio_waveform_kit_example
+description: Example app for the audio_waveform_kit package
 version: 1.0.0
 
 publish_to: none
@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
-  voice_message:
+  audio_waveform_kit:
     path: ../
 
 dev_dependencies:

@@ -1,4 +1,4 @@
-package com.example.voice_message_example
+package com.example.audio_waveform_kit_example
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -25,8 +25,8 @@ class RecordingLevelPainter extends CustomPainter {
 
     final centerY = size.height / 2;
     final minHalfHeight = minBarHeightFraction * centerY;
-    final barWidth =
-        ((size.width - barSpacing * (count - 1)) / count).clamp(1.0, double.infinity);
+    final barWidth = ((size.width - barSpacing * (count - 1)) / count)
+        .clamp(1.0, double.infinity);
 
     for (var i = 0; i < count; i++) {
       final amp = samples[i].abs().clamp(0.0, 1.0);

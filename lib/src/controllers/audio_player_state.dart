@@ -29,10 +29,9 @@ class AudioPlayerState$Playing extends AudioPlayerState {
         duration: duration ?? this.duration,
       );
 
-  double get progress =>
-      duration.inMilliseconds > 0
-          ? (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
-          : 0.0;
+  double get progress => duration.inMilliseconds > 0
+      ? (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
+      : 0.0;
 
   @override
   List<Object?> get props => [position, duration];
@@ -47,10 +46,9 @@ class AudioPlayerState$Paused extends AudioPlayerState {
   final Duration position;
   final Duration duration;
 
-  double get progress =>
-      duration.inMilliseconds > 0
-          ? (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
-          : 0.0;
+  double get progress => duration.inMilliseconds > 0
+      ? (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
+      : 0.0;
 
   @override
   List<Object?> get props => [position, duration];

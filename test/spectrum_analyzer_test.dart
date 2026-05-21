@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:voice_message/voice_message.dart';
 
 void main() {
   late SpectrumAnalyzer analyzer;
@@ -20,14 +20,16 @@ void main() {
     test('returns half-fftSize bins', () {
       const fftSize = 512;
       final pcm = List<int>.filled(fftSize * 2, 0);
-      final result = analyzer.analyze(pcm, const SpectrumConfig(fftSize: fftSize));
+      final result =
+          analyzer.analyze(pcm, const SpectrumConfig(fftSize: fftSize));
       expect(result, hasLength(fftSize ~/ 2));
     });
 
     test('all-zero input yields –80 dB everywhere', () {
       const fftSize = 512;
       final pcm = List<int>.filled(fftSize * 2, 0);
-      final result = analyzer.analyze(pcm, const SpectrumConfig(fftSize: fftSize));
+      final result =
+          analyzer.analyze(pcm, const SpectrumConfig(fftSize: fftSize));
       expect(result, everyElement(closeTo(-80, 1e-9)));
     });
 
@@ -63,6 +65,71 @@ void main() {
       final spectrum = List<double>.filled(512, -40);
       final result = analyzer.toLogScale(spectrum, config);
       expect(result, hasLength(32));
+    });
+  });
+
+  group('SpectrumAnalyzer.computeTimeline', () {
+    test('returns empty list for input that is too short', () {
+      final result = analyzer.computeTimeline([], const SpectrumConfig());
+      expect(result, isEmpty);
+    });
+
+    test('returns a frames × bands matrix for a long input', () {
+      const fftSize = 512;
+      const bands = 24;
+      const config = SpectrumConfig(fftSize: fftSize, frequencyBands: bands);
+      // 10 FFT windows worth of PCM bytes.
+      final pcm = List<int>.filled(fftSize * 2 * 10, 0);
+
+      final result = analyzer.computeTimeline(pcm, config);
+
+      expect(result, isNotEmpty);
+      expect(result.every((frame) => frame.length == bands), isTrue);
+    });
+  });
+
+  group('SpectrumAnalyzer.analyzeRaw', () {
+    test('returns half-fftSize bins', () {
+      const fftSize = 512;
+      final samples = List<double>.filled(fftSize, 0);
+      final result = analyzer.analyzeRaw(
+        samples,
+        const SpectrumConfig(fftSize: fftSize),
+      );
+      expect(result, hasLength(fftSize ~/ 2));
+    });
+
+    test('silence yields about -80 dB', () {
+      const fftSize = 512;
+      final samples = List<double>.filled(fftSize, 0);
+      final result = analyzer.analyzeRaw(
+        samples,
+        const SpectrumConfig(fftSize: fftSize),
+      );
+      expect(result, everyElement(closeTo(-80, 1e-6)));
+    });
+  });
+
+  group('SpectrumAnalyzer odd-length input', () {
+    test('analyze does not throw on odd byte length', () {
+      const fftSize = 512;
+      final pcm = List<int>.filled(fftSize * 2 + 1, 0);
+      expect(
+        () => analyzer.analyze(pcm, const SpectrumConfig(fftSize: fftSize)),
+        returnsNormally,
+      );
+    });
+
+    test('computeTimeline does not throw on odd byte length', () {
+      const fftSize = 512;
+      final pcm = List<int>.filled(fftSize * 2 + 1, 0);
+      expect(
+        () => analyzer.computeTimeline(
+          pcm,
+          const SpectrumConfig(fftSize: fftSize),
+        ),
+        returnsNormally,
+      );
     });
   });
 }

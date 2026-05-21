@@ -1,5 +1,5 @@
+import 'package:audio_waveform_kit/src/painters/recording_level_painter.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_message/src/painters/recording_level_painter.dart';
 
 /// Draws amplitude bars for a pre-recorded [samples] list — no BLoC required.
 /// Useful for voice message bubbles in chat interfaces.

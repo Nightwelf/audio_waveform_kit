@@ -1,16 +1,16 @@
+import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/models/spectrum_config.dart';
+import 'package:audio_waveform_kit/src/services/audio_recording_service.dart';
+import 'package:audio_waveform_kit/src/services/audio_recording_service_impl.dart';
+import 'package:audio_waveform_kit/src/services/spectrum_analyzer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_recording_bloc.dart';
-import 'package:voice_message/src/models/spectrum_config.dart';
-import 'package:voice_message/src/services/audio_recording_service.dart';
-import 'package:voice_message/src/services/audio_recording_service_impl.dart';
-import 'package:voice_message/src/services/spectrum_analyzer.dart';
 
-/// DI scope for the voice_message package.
+/// DI scope for the audio_waveform_kit package.
 ///
 /// Wrap the part of your widget tree that uses recording widgets with this.
-class VoiceMessageScope extends StatelessWidget {
-  const VoiceMessageScope({
+class AudioWaveformScope extends StatelessWidget {
+  const AudioWaveformScope({
     required this.child,
     super.key,
     this.spectrumConfig = const SpectrumConfig(),
@@ -28,7 +28,8 @@ class VoiceMessageScope extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<AudioRecordingService>(
-          create: (_) => AudioRecordingServiceImpl(),
+          create: (_) =>
+              AudioRecordingServiceImpl(sampleRate: spectrumConfig.sampleRate),
           dispose: (service) => service.dispose(),
         ),
         RepositoryProvider<SpectrumAnalyzer>(

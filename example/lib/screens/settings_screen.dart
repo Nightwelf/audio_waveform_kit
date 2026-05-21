@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/voice_message.dart';
-import 'package:voice_message_example/bloc/settings_cubit.dart';
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
+import 'package:audio_waveform_kit_example/bloc/settings_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

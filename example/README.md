@@ -1,4 +1,4 @@
-# voice_message_example
+# audio_waveform_kit_example
 
 A new Flutter project.
 

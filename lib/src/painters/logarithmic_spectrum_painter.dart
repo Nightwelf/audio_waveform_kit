@@ -10,6 +10,7 @@ class LogarithmicSpectrumPainter extends CustomPainter {
     this.maxDb = 0.0,
     this.frequencyMin = 20.0,
     this.frequencyMax = 20000.0,
+    this.sampleRate = 44100,
     this.bands = 64,
     this.barSpacing = 1.0,
   });
@@ -20,6 +21,7 @@ class LogarithmicSpectrumPainter extends CustomPainter {
   final double maxDb;
   final double frequencyMin;
   final double frequencyMax;
+  final int sampleRate;
   final int bands;
   final double barSpacing;
 
@@ -27,19 +29,17 @@ class LogarithmicSpectrumPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (spectrum.isEmpty) return;
 
-    final barWidth =
-        ((size.width - barSpacing * (bands - 1)) / bands).clamp(1.0, double.infinity);
+    final barWidth = ((size.width - barSpacing * (bands - 1)) / bands)
+        .clamp(1.0, double.infinity);
     final range = maxDb - minDb;
     final centerY = size.height / 2;
 
     for (var band = 0; band < bands; band++) {
       final t = bands > 1 ? band / (bands - 1) : 0.0;
-      final logFreq =
-          frequencyMin * math.pow(frequencyMax / frequencyMin, t);
-      final binIdx =
-          ((logFreq / (frequencyMax / 2)) * spectrum.length)
-              .round()
-              .clamp(0, spectrum.length - 1);
+      final logFreq = frequencyMin * math.pow(frequencyMax / frequencyMin, t);
+      final binIdx = ((logFreq / (sampleRate / 2)) * spectrum.length)
+          .round()
+          .clamp(0, spectrum.length - 1);
 
       final normalized = ((spectrum[binIdx] - minDb) / range).clamp(0.0, 1.0);
       final halfHeight = normalized * centerY;
@@ -71,5 +71,5 @@ class LogarithmicSpectrumPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(LogarithmicSpectrumPainter oldDelegate) =>
-      oldDelegate.spectrum != spectrum;
+      oldDelegate.spectrum != spectrum || oldDelegate.baseColor != baseColor;
 }

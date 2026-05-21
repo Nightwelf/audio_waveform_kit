@@ -48,8 +48,13 @@ class AudioRecordingState$Recording extends AudioRecordingState {
       );
 
   @override
-  List<Object?> get props =>
-      [duration, waveformSamples, rmsSamples, snapshotSamples, liveSpectrumData];
+  List<Object?> get props => [
+        duration,
+        waveformSamples,
+        rmsSamples,
+        snapshotSamples,
+        liveSpectrumData,
+      ];
 }
 
 class AudioRecordingState$Finished extends AudioRecordingState {

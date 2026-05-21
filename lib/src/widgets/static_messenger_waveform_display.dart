@@ -1,5 +1,5 @@
+import 'package:audio_waveform_kit/src/painters/messenger_waveform_painter.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_message/src/painters/messenger_waveform_painter.dart';
 
 /// Static messenger-style waveform — no BLoC, takes pre-recorded [samples].
 ///
