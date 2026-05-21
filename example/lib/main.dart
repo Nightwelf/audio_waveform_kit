@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/voice_message.dart';
-import 'package:voice_message_example/bloc/settings_cubit.dart';
-import 'package:voice_message_example/bloc/tab_cubit.dart';
-import 'package:voice_message_example/screens/playback_screen.dart';
-import 'package:voice_message_example/screens/recording_screen.dart';
-import 'package:voice_message_example/screens/settings_screen.dart';
-import 'package:voice_message_example/theme/app_theme.dart';
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
+import 'package:audio_waveform_kit_example/bloc/settings_cubit.dart';
+import 'package:audio_waveform_kit_example/bloc/tab_cubit.dart';
+import 'package:audio_waveform_kit_example/screens/playback_screen.dart';
+import 'package:audio_waveform_kit_example/screens/recording_screen.dart';
+import 'package:audio_waveform_kit_example/screens/settings_screen.dart';
+import 'package:audio_waveform_kit_example/theme/app_theme.dart';
 
-void main() => runApp(const VoiceMessageApp());
+void main() => runApp(const AudioWaveformApp());
 
-class VoiceMessageApp extends StatelessWidget {
-  const VoiceMessageApp({super.key});
+class AudioWaveformApp extends StatelessWidget {
+  const AudioWaveformApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Voice Message',
+      title: 'Audio Waveform Kit',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       home: MultiBlocProvider(
@@ -24,7 +24,7 @@ class VoiceMessageApp extends StatelessWidget {
           BlocProvider(create: (_) => TabCubit()),
           BlocProvider(create: (_) => SettingsCubit()),
         ],
-        child: const VoiceMessageScope(
+        child: const AudioWaveformScope(
           child: _HomeScreen(),
         ),
       ),
@@ -48,7 +48,7 @@ class _HomeScreen extends StatelessWidget {
         length: _tabs.length,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Voice Message'),
+            title: const Text('Audio Waveform Kit'),
             bottom: TabBar(
               tabs: _tabs,
               onTap: context.read<TabCubit>().setTab,

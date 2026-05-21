@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:audio_waveform_kit/src/constants.dart';
+
 abstract class AudioUtils {
   AudioUtils._();
 
@@ -56,7 +58,7 @@ abstract class AudioUtils {
   static List<double> wavToSamples(Uint8List wavBytes) {
     if (wavBytes.length < 44) return [];
     final int16View = wavBytes.buffer.asInt16List(44);
-    return List.generate(int16View.length, (i) => int16View[i] / 32768);
+    return List.generate(int16View.length, (i) => int16View[i] / kInt16Scale);
   }
 
   static String formatDuration(Duration duration) {

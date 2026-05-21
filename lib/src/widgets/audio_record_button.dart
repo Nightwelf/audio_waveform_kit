@@ -1,7 +1,7 @@
+import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/models/recording_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_recording_bloc.dart';
-import 'package:voice_message/src/models/recording_result.dart';
 
 typedef AudioRecordButtonBuilder = Widget Function({
   required BuildContext context,
@@ -110,7 +110,11 @@ class AudioRecordButton extends StatelessWidget {
           }
         }
 
-        return builder(context: context, isRecording: isRecording, onTap: onTap);
+        return builder(
+          context: context,
+          isRecording: isRecording,
+          onTap: onTap,
+        );
       },
     );
   }

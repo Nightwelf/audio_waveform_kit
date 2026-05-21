@@ -1,7 +1,8 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
-import 'package:voice_message/src/models/spectrum_config.dart';
+import 'package:audio_waveform_kit/src/constants.dart';
+import 'package:audio_waveform_kit/src/models/spectrum_config.dart';
 
 class SpectrumAnalyzer {
   /// Computes FFT spectrum from raw PCM16LE bytes.
@@ -12,24 +13,17 @@ class SpectrumAnalyzer {
     final n = config.fftSize;
     final binCount = n ~/ 2;
 
-    debugPrint('[SpectrumAnalyzer] pcmBytes=${pcmBytes.length} '
-        'samples=${pcmBytes.length ~/ 2} '
-        'duration≈${(pcmBytes.length / 2 / config.sampleRate).toStringAsFixed(2)}s '
-        'fftSize=$n');
+    final bytes = pcmBytes.length.isOdd
+        ? pcmBytes.sublist(0, pcmBytes.length - 1)
+        : pcmBytes;
 
-    if (pcmBytes.length < n * 2) {
-      debugPrint('[SpectrumAnalyzer] too short — returning silence');
+    if (bytes.length < n * 2) {
       return List.filled(binCount, -80);
     }
 
-    final int16View =
-        Uint8List.fromList(pcmBytes).buffer.asInt16List();
+    final int16View = Uint8List.fromList(bytes).buffer.asInt16List();
 
-    // Pre-compute Hann window
-    final hann = List<double>.generate(
-      n,
-      (i) => 0.5 - 0.5 * math.cos(2 * math.pi * i / (n - 1)),
-    );
+    final hann = _hann(n);
 
     // Accumulate magnitudes across 50%-overlapping windows
     final sumMag = List<double>.filled(binCount, 0);
@@ -40,7 +34,7 @@ class SpectrumAnalyzer {
       final real = List<double>.filled(n, 0);
       final imag = List<double>.filled(n, 0);
       for (var i = 0; i < n; i++) {
-        real[i] = (int16View[start + i] / 32768) * hann[i];
+        real[i] = (int16View[start + i] / kInt16Scale) * hann[i];
       }
       _fft(real, imag);
       for (var k = 0; k < binCount; k++) {
@@ -50,8 +44,6 @@ class SpectrumAnalyzer {
       windowCount++;
     }
 
-    debugPrint('[SpectrumAnalyzer] windows=$windowCount hop=$hop');
-
     if (windowCount == 0) return List.filled(binCount, -80);
 
     // Average in linear scale
@@ -60,21 +52,13 @@ class SpectrumAnalyzer {
 
     // Auto-normalize: peak bin → 0 dB, so quiet recordings fill the display
     final peak = avgMag.reduce(math.max);
-    debugPrint('[SpectrumAnalyzer] peak linear=$peak');
 
-    final result = List<double>.generate(binCount, (i) {
+    return List<double>.generate(binCount, (i) {
       if (peak <= 0) return -80.0;
       final normalized = avgMag[i] / peak;
       if (normalized <= 0) return -80.0;
       return (20 * math.log(normalized) / math.ln10).clamp(-80.0, 0.0);
     });
-
-    final nonSilent = result.where((v) => v > -79).length;
-    final maxDb = result.reduce(math.max);
-    debugPrint('[SpectrumAnalyzer] bins=$binCount '
-        'non-silent(>-79dB)=$nonSilent maxDb=${maxDb.toStringAsFixed(1)}');
-
-    return result;
   }
 
   /// Divides the recording into up to [maxFrames] time slices and computes
@@ -87,15 +71,17 @@ class SpectrumAnalyzer {
     int maxFrames = 200,
   }) {
     final n = config.fftSize;
-    if (pcmBytes.length < n * 2) return [];
 
-    final int16View = Uint8List.fromList(pcmBytes).buffer.asInt16List();
+    final bytes = pcmBytes.length.isOdd
+        ? pcmBytes.sublist(0, pcmBytes.length - 1)
+        : pcmBytes;
+
+    if (bytes.length < n * 2) return [];
+
+    final int16View = Uint8List.fromList(bytes).buffer.asInt16List();
     final hop = math.max(n ~/ 2, int16View.length ~/ maxFrames);
 
-    final hann = List<double>.generate(
-      n,
-      (i) => 0.5 - 0.5 * math.cos(2 * math.pi * i / (n - 1)),
-    );
+    final hann = _hann(n);
 
     final timeline = <List<double>>[];
 
@@ -103,7 +89,7 @@ class SpectrumAnalyzer {
       final real = List<double>.filled(n, 0);
       final imag = List<double>.filled(n, 0);
       for (var i = 0; i < n; i++) {
-        real[i] = (int16View[start + i] / 32768) * hann[i];
+        real[i] = (int16View[start + i] / kInt16Scale) * hann[i];
       }
       _fft(real, imag);
 
@@ -112,24 +98,10 @@ class SpectrumAnalyzer {
         return math.sqrt(real[i] * real[i] + imag[i] * imag[i]) / binCount;
       });
 
-      timeline.add(_toLogBands(linearMags, config));
+      timeline.add(toLogScale(linearMags, config));
     }
 
     return timeline;
-  }
-
-  List<double> _toLogBands(List<double> linearMags, SpectrumConfig config) {
-    final bands = config.frequencyBands;
-    final nyquist = config.sampleRate / 2.0;
-    return List.generate(bands, (b) {
-      final t = bands > 1 ? b / (bands - 1) : 0.0;
-      final logFreq =
-          config.frequencyMin *
-          math.pow(config.frequencyMax / config.frequencyMin, t);
-      final binIdx =
-          (logFreq / nyquist * linearMags.length).round().clamp(0, linearMags.length - 1);
-      return linearMags[binIdx];
-    });
   }
 
   /// Single FFT window on already-normalised float [samples] — for live display.
@@ -144,10 +116,10 @@ class SpectrumAnalyzer {
     final real = List<double>.filled(n, 0);
     final imag = List<double>.filled(n, 0);
     final start = samples.length - n;
+    final hann = _hann(n);
 
     for (var i = 0; i < n; i++) {
-      final window = 0.5 - 0.5 * math.cos(2 * math.pi * i / (n - 1));
-      real[i] = samples[start + i] * window;
+      real[i] = samples[start + i] * hann[i];
     }
 
     _fft(real, imag);
@@ -167,14 +139,18 @@ class SpectrumAnalyzer {
 
     return List.generate(bands, (band) {
       final t = bands > 1 ? band / (bands - 1) : 0.0;
-      final logFreq =
-          config.frequencyMin *
+      final logFreq = config.frequencyMin *
           math.pow(config.frequencyMax / config.frequencyMin, t);
-      final binIdx =
-          (logFreq / nyquist * fBins).round().clamp(0, fBins - 1);
+      final binIdx = (logFreq / nyquist * fBins).round().clamp(0, fBins - 1);
       return spectrum[binIdx];
     });
   }
+
+  /// Pre-computed Hann window of length [n].
+  List<double> _hann(int n) => List<double>.generate(
+        n,
+        (i) => 0.5 - 0.5 * math.cos(2 * math.pi * i / (n - 1)),
+      );
 
   void _fft(List<double> real, List<double> imag) {
     final n = real.length;

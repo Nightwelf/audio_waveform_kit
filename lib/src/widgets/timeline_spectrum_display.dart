@@ -1,7 +1,7 @@
+import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/painters/timeline_spectrum_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_recording_bloc.dart';
-import 'package:voice_message/src/painters/timeline_spectrum_painter.dart';
 
 /// Offline time–frequency spectrogram.
 ///

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:audio_waveform_kit/src/widgets/waveform_display.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_message/src/widgets/waveform_display.dart';
 
 class WaveformPainter extends CustomPainter {
   WaveformPainter({

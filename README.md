@@ -1,4 +1,4 @@
-# voice_message
+# audio_waveform_kit
 
 A Flutter package for audio recording with real-time waveform and spectrum visualization.
 
@@ -18,8 +18,8 @@ Add to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  voice_message:
-    path: ../voice_message  # or pub.dev version when published
+  audio_waveform_kit:
+    path: ../audio_waveform_kit  # or pub.dev version when published
 ```
 
 ### Permissions
@@ -43,10 +43,10 @@ dependencies:
 
 ## Usage
 
-### 1. Wrap with `VoiceMessageScope`
+### 1. Wrap with `AudioWaveformScope`
 
 ```dart
-VoiceMessageScope(
+AudioWaveformScope(
   // optional — all params have sensible defaults
   spectrumConfig: SpectrumConfig(fftSize: 1024, frequencyBands: 64),
   maxWaveformSamples: 56,
@@ -55,7 +55,7 @@ VoiceMessageScope(
 )
 ```
 
-`VoiceMessageScope` provides `AudioRecordingService`, `SpectrumAnalyzer`, and `AudioRecordingBloc` to the subtree.
+`AudioWaveformScope` provides `AudioRecordingService`, `SpectrumAnalyzer`, and `AudioRecordingBloc` to the subtree.
 
 ### 2. Add a record button
 
@@ -153,14 +153,14 @@ onRecordingFinished: (result) {
 
 ```dart
 // from callback:
-VoiceMessagePlayer(filePath: result.filePath)
+AudioWaveformPlayer(filePath: result.filePath)
 
 // or from bloc state:
 final state = context.read<AudioRecordingBloc>().state as AudioRecordingState$Finished;
-VoiceMessagePlayer(filePath: state.filePath)
+AudioWaveformPlayer(filePath: state.filePath)
 ```
 
-`VoiceMessagePlayer` is self-contained — it manages its own `AudioPlayerBloc` and does **not** require `VoiceMessageScope`.
+`AudioWaveformPlayer` is self-contained — it manages its own `AudioPlayerBloc` and does **not** require `AudioWaveformScope`.
 
 ## Recording state machine
 

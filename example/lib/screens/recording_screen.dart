@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/voice_message.dart';
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
 
 class RecordingScreen extends StatefulWidget {
   const RecordingScreen({super.key});
@@ -51,13 +51,16 @@ class _RecordingScreenState extends State<RecordingScreen> {
           const SizedBox(height: 8),
           const StringSnapshotDisplay(height: 80),
           const SizedBox(height: 16),
-          const _SectionLabel('Messenger waveform — scrolling, normalized (window=100)'),
+          const _SectionLabel(
+              'Messenger waveform — scrolling, normalized (window=100)'),
           const SizedBox(height: 8),
           const MessengerWaveformDisplay(height: 48, windowSize: 100),
           const SizedBox(height: 16),
-          const _SectionLabel('Messenger waveform — scrolling, log dB (window=100)'),
+          const _SectionLabel(
+              'Messenger waveform — scrolling, log dB (window=100)'),
           const SizedBox(height: 8),
-          const MessengerWaveformDisplay(height: 48, logarithmic: true, windowSize: 100),
+          const MessengerWaveformDisplay(
+              height: 48, logarithmic: true, windowSize: 100),
           const SizedBox(height: 16),
           const _SectionLabel('Level (timeline, raw amplitude)'),
           const SizedBox(height: 8),
@@ -96,9 +99,8 @@ class _CallbackResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final fileInfo = kIsWeb
-        ? 'web: ${result.wavBytes!.length} bytes'
-        : result.filePath;
+    final fileInfo =
+        kIsWeb ? 'web: ${result.wavBytes!.length} bytes' : result.filePath;
 
     return Card(
       child: Padding(

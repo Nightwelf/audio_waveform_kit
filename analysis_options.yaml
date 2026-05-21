@@ -8,7 +8,7 @@ analyzer:
     unrelated_type_equality_checks: error
   exclude:
     - "build/**"
-    - "lib/doc/**"
+    - "doc/**"
 
 linter:
   rules:

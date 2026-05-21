@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:voice_message/voice_message.dart';
 
 void main() {
   group('AudioUtils.encodeWav', () {

@@ -1,5 +1,5 @@
+import 'package:audio_waveform_kit/src/painters/string_snapshot_painter.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_message/src/painters/string_snapshot_painter.dart';
 
 /// Static oscilloscope view for a pre-recorded snapshot — no BLoC required.
 /// Useful for voice message bubbles in chat interfaces.

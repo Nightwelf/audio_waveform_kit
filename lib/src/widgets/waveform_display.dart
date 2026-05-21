@@ -1,7 +1,7 @@
+import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/painters/waveform_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_recording_bloc.dart';
-import 'package:voice_message/src/painters/waveform_painter.dart';
 
 enum WaveformStyle { envelope, string }
 
@@ -43,8 +43,7 @@ class WaveformDisplay extends StatelessWidget {
             painter: WaveformPainter(
               samples: samples,
               waveColor: waveColor ?? theme.colorScheme.primary,
-              baselineColor:
-                  baselineColor ?? theme.colorScheme.outlineVariant,
+              baselineColor: baselineColor ?? theme.colorScheme.outlineVariant,
               strokeWidth: strokeWidth,
               style: style,
             ),

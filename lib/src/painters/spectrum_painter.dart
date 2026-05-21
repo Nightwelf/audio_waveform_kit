@@ -20,8 +20,8 @@ class SpectrumPainter extends CustomPainter {
     if (spectrum.isEmpty) return;
 
     final count = spectrum.length;
-    final barWidth =
-        ((size.width - barSpacing * (count - 1)) / count).clamp(1.0, double.infinity);
+    final barWidth = ((size.width - barSpacing * (count - 1)) / count)
+        .clamp(1.0, double.infinity);
     final range = maxDb - minDb;
 
     final paint = Paint()

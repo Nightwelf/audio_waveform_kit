@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
@@ -10,7 +11,7 @@ part 'audio_player_event.dart';
 part 'audio_player_state.dart';
 
 class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
-  AudioPlayerBloc({required this.filePath})
+  AudioPlayerBloc({required this.filePath, this.audioBytes})
       : _player = AudioPlayer(),
         super(const AudioPlayerState$Idle()) {
     on<AudioPlayerEvent$Play>(_onPlay, transformer: droppable());
@@ -39,6 +40,10 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
   }
 
   final String filePath;
+
+  /// WAV-байты для воспроизведения на web (нет доступа к файловой системе).
+  final Uint8List? audioBytes;
+
   final AudioPlayer _player;
 
   StreamSubscription<Duration>? _positionSub;
@@ -62,7 +67,11 @@ class AudioPlayerBloc extends Bloc<AudioPlayerEvent, AudioPlayerState> {
           ),
         );
       } else {
-        await _player.play(DeviceFileSource(filePath));
+        final bytes = audioBytes;
+        final source = bytes != null
+            ? BytesSource(bytes, mimeType: 'audio/wav')
+            : DeviceFileSource(filePath);
+        await _player.play(source);
         emit(
           AudioPlayerState$Playing(
             position: Duration.zero,

@@ -1,6 +1,6 @@
 {
-    "name": "voice_message_example",
-    "short_name": "voice_message_example",
+    "name": "audio_waveform_kit_example",
+    "short_name": "audio_waveform_kit_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

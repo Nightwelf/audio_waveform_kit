@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/voice_message.dart';
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
 
 class VoiceNote {
   const VoiceNote({

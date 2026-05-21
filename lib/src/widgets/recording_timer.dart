@@ -1,7 +1,7 @@
+import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/utils/audio_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/src/controllers/audio_recording_bloc.dart';
-import 'package:voice_message/src/utils/audio_utils.dart';
 
 class RecordingTimer extends StatelessWidget {
   const RecordingTimer({

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_message/voice_message.dart';
+import 'package:audio_waveform_kit/audio_waveform_kit.dart';
 
 class PlaybackScreen extends StatelessWidget {
   const PlaybackScreen({super.key});
@@ -30,7 +30,10 @@ class PlaybackScreen extends StatelessWidget {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: VoiceMessagePlayer(filePath: state.filePath),
+                child: AudioWaveformPlayer(
+                  filePath: state.filePath,
+                  audioBytes: state.wavBytes,
+                ),
               ),
             ),
             const SizedBox(height: 24),
