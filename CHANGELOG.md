@@ -1,3 +1,21 @@
+## 1.0.1
+
+### Fixes
+
+- **`AudioRecordingBloc`** — убран повторный `dispose()` `AudioRecordingService`: при демонтаже `AudioWaveformScope` сервис закрывался дважды (в `Bloc.close()` и в `RepositoryProvider.dispose`), что могло бросать исключение на уже освобождённом `AudioRecorder`. Теперь жизненным циклом сервиса управляет только DI-scope
+- **`StringSnapshotPainter`** — исправлены `NaN`-координаты пути при снапшоте из одного сэмпла
+- **`TimelineSpectrumPainter`** — исправлено деление на ноль при `SpectrumConfig.frequencyBands == 1`
+- **`LiveSpectrumDisplay`**, **`SpectrumDisplay`** — чтение `spectrumConfig` в `build()` переведено с `context.read()` на `context.select()`
+- **`AudioWaveformPlayer`** — убран небезопасный `context.findRenderObject()!` в пользу явной проверки на `null`
+- **`WaveformDisplay`**, **`RecordingLevelDisplay`**, **`StringSnapshotDisplay`**, **`MessengerWaveformDisplay`**, **`LiveSpectrumDisplay`** — сравнение списков сэмплов в `buildWhen` переведено с `!=` (по ссылке) на `ListEquality` (по содержимому)
+- `AudioRecordingBloc` — дефолт `maxSnapshotSamples` приведён к `2048`, согласован с дефолтом `AudioWaveformScope`
+
+### Changes
+
+- `WaveformStyle` перенесён из `widgets/waveform_display.dart` в `painters/waveform_painter.dart` — устранена обратная зависимость painter → widget; публичный API не изменился (`WaveformStyle` по-прежнему доступен из `audio_waveform_kit.dart`)
+- Добавлен `AudioRecordingState$Finished.toRecordingResult()` — единая точка маппинга state в `RecordingResult` вместо ручной сборки в `AudioRecordButton`
+- `collection` добавлен в прямые зависимости пакета (ранее использовался транзитивно)
+
 ## 1.0.0
 
 ### Features

@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:audio_waveform_kit/src/widgets/waveform_display.dart';
 import 'package:flutter/material.dart';
+
+enum WaveformStyle { envelope, string }
 
 class WaveformPainter extends CustomPainter {
   WaveformPainter({

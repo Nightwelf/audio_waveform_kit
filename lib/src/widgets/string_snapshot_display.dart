@@ -1,7 +1,10 @@
 import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
 import 'package:audio_waveform_kit/src/painters/string_snapshot_painter.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const _listEquality = ListEquality<double>();
 
 /// Oscilloscope-style display: shows the shape of the audio wave
 /// at the current moment — like a vibrating string, not a timeline.
@@ -56,7 +59,7 @@ class StringSnapshotDisplay extends StatelessWidget {
   ) {
     if (prev is AudioRecordingState$Recording &&
         curr is AudioRecordingState$Recording) {
-      return prev.snapshotSamples != curr.snapshotSamples;
+      return !_listEquality.equals(prev.snapshotSamples, curr.snapshotSamples);
     }
     return prev.runtimeType != curr.runtimeType;
   }

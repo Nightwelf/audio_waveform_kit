@@ -1,4 +1,5 @@
 import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/models/spectrum_config.dart';
 import 'package:audio_waveform_kit/src/painters/logarithmic_spectrum_painter.dart';
 import 'package:audio_waveform_kit/src/painters/spectrum_painter.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,9 @@ class SpectrumDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final config = context.read<AudioRecordingBloc>().spectrumConfig;
+    final config = context.select<AudioRecordingBloc, SpectrumConfig>(
+      (bloc) => bloc.spectrumConfig,
+    );
 
     return BlocBuilder<AudioRecordingBloc, AudioRecordingState>(
       buildWhen: (prev, curr) => prev.runtimeType != curr.runtimeType,

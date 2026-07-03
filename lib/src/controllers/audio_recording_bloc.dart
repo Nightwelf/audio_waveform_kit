@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:audio_waveform_kit/src/constants.dart';
+import 'package:audio_waveform_kit/src/models/recording_result.dart';
 import 'package:audio_waveform_kit/src/models/spectrum_config.dart';
 import 'package:audio_waveform_kit/src/services/audio_recording_service.dart';
 import 'package:audio_waveform_kit/src/services/spectrum_analyzer.dart';
@@ -22,7 +23,7 @@ class AudioRecordingBloc
     required SpectrumAnalyzer spectrumAnalyzer,
     this.spectrumConfig = const SpectrumConfig(),
     int maxWaveformSamples = 56,
-    int maxSnapshotSamples = 256,
+    int maxSnapshotSamples = 2048,
   })  : _recordingService = recordingService,
         _spectrumAnalyzer = spectrumAnalyzer,
         _maxWaveformSamples = maxWaveformSamples,
@@ -251,9 +252,11 @@ class AudioRecordingBloc
 
   @override
   Future<void> close() async {
+    // Не закрываем _recordingService здесь: им владеет DI-scope
+    // (RepositoryProvider.dispose), повторный dispose тут приведёт
+    // к двойному освобождению одного и того же ресурса.
     _timer?.cancel();
     await _audioStreamSub?.cancel();
-    await _recordingService.dispose();
     return super.close();
   }
 }

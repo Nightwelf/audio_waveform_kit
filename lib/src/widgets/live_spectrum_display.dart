@@ -1,8 +1,12 @@
 import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
+import 'package:audio_waveform_kit/src/models/spectrum_config.dart';
 import 'package:audio_waveform_kit/src/painters/logarithmic_spectrum_painter.dart';
 import 'package:audio_waveform_kit/src/painters/spectrum_painter.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const _listEquality = ListEquality<double>();
 
 /// Real-time spectrogram that updates every audio chunk during recording.
 /// Bars reflect the actual sound level — no auto-normalization,
@@ -27,13 +31,18 @@ class LiveSpectrumDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final config = context.read<AudioRecordingBloc>().spectrumConfig;
+    final config = context.select<AudioRecordingBloc, SpectrumConfig>(
+      (bloc) => bloc.spectrumConfig,
+    );
 
     return BlocBuilder<AudioRecordingBloc, AudioRecordingState>(
       buildWhen: (prev, curr) {
         if (curr is AudioRecordingState$Recording &&
             prev is AudioRecordingState$Recording) {
-          return prev.liveSpectrumData != curr.liveSpectrumData;
+          return !_listEquality.equals(
+            prev.liveSpectrumData,
+            curr.liveSpectrumData,
+          );
         }
         return prev.runtimeType != curr.runtimeType;
       },

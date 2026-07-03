@@ -56,7 +56,7 @@ class TimelineSpectrumPainter extends CustomPainter {
       final x = t * (barWidth + barSpacing);
 
       // Hue from spectral centroid: low freq (0) → warm 30°, high freq → cool 220°.
-      final freqT = centroids[t] / (bands - 1);
+      final freqT = bands > 1 ? centroids[t] / (bands - 1) : 0.0;
       final hue = (1 - freqT) * 30 + freqT * 220;
       final color = HSVColor.fromAHSV(
         1,

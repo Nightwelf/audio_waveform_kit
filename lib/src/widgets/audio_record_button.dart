@@ -84,18 +84,7 @@ class AudioRecordButton extends StatelessWidget {
           prev is! AudioRecordingState$Finished,
       listener: (context, state) {
         if (state is! AudioRecordingState$Finished) return;
-        onRecordingFinished?.call(
-          RecordingResult(
-            filePath: state.filePath,
-            wavBytes: state.wavBytes,
-            duration: state.duration,
-            waveformSamples: state.waveformSamples,
-            rmsSamples: state.rmsSamples,
-            snapshotSamples: state.snapshotSamples,
-            spectrumData: state.spectrumData,
-            spectrumTimeline: state.spectrumTimeline,
-          ),
-        );
+        onRecordingFinished?.call(state.toRecordingResult());
       },
       buildWhen: (prev, curr) => prev.runtimeType != curr.runtimeType,
       builder: (context, state) {

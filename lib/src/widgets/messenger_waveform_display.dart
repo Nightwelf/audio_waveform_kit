@@ -1,7 +1,10 @@
 import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
 import 'package:audio_waveform_kit/src/painters/messenger_waveform_painter.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const _listEquality = ListEquality<double>();
 
 /// Messenger-style waveform timeline (WhatsApp / Telegram look).
 ///
@@ -84,7 +87,7 @@ class MessengerWaveformDisplay extends StatelessWidget {
   ) {
     if (prev is AudioRecordingState$Recording &&
         curr is AudioRecordingState$Recording) {
-      return prev.rmsSamples != curr.rmsSamples;
+      return !_listEquality.equals(prev.rmsSamples, curr.rmsSamples);
     }
     return prev.runtimeType != curr.runtimeType;
   }

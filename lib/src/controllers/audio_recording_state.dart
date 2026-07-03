@@ -89,6 +89,19 @@ class AudioRecordingState$Finished extends AudioRecordingState {
   /// Used by TimelineSpectrumDisplay.
   final List<List<double>> spectrumTimeline;
 
+  /// Единая точка маппинга state → публичный DTO, чтобы новые поля
+  /// добавлялись только здесь, а не дублировались в вызывающем коде.
+  RecordingResult toRecordingResult() => RecordingResult(
+        filePath: filePath,
+        wavBytes: wavBytes,
+        duration: duration,
+        waveformSamples: waveformSamples,
+        rmsSamples: rmsSamples,
+        snapshotSamples: snapshotSamples,
+        spectrumData: spectrumData,
+        spectrumTimeline: spectrumTimeline,
+      );
+
   @override
   List<Object?> get props => [
         filePath,

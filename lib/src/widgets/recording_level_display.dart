@@ -1,7 +1,10 @@
 import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
 import 'package:audio_waveform_kit/src/painters/recording_level_painter.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const _listEquality = ListEquality<double>();
 
 /// Messenger-style amplitude bars.
 ///
@@ -58,7 +61,7 @@ class RecordingLevelDisplay extends StatelessWidget {
   ) {
     if (prev is AudioRecordingState$Recording &&
         curr is AudioRecordingState$Recording) {
-      return prev.waveformSamples != curr.waveformSamples;
+      return !_listEquality.equals(prev.waveformSamples, curr.waveformSamples);
     }
     return prev.runtimeType != curr.runtimeType;
   }

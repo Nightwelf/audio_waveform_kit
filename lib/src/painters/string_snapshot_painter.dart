@@ -24,7 +24,9 @@ class StringSnapshotPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final centerY = size.height / 2;
 
-    if (samples.isEmpty) {
+    // Меньше 2 точек — путь через квадратичные кривые не строится
+    // (stepX делится на count - 1), рисуем состояние покоя.
+    if (samples.length < 2) {
       _drawRestingString(canvas, size, centerY);
       return;
     }

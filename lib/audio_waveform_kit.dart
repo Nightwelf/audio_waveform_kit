@@ -3,6 +3,7 @@ export 'src/controllers/audio_player_bloc.dart';
 export 'src/controllers/audio_recording_bloc.dart';
 export 'src/models/recording_result.dart';
 export 'src/models/spectrum_config.dart';
+export 'src/painters/waveform_painter.dart' show WaveformStyle;
 export 'src/services/audio_recording_service.dart';
 export 'src/services/spectrum_analyzer.dart';
 export 'src/utils/audio_utils.dart';

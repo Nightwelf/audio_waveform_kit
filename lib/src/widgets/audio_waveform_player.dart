@@ -123,8 +123,9 @@ class _ProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (details) {
-        final box = context.findRenderObject()! as RenderBox;
-        final relative = details.localPosition.dx / box.size.width;
+        final renderObject = context.findRenderObject();
+        if (renderObject is! RenderBox) return;
+        final relative = details.localPosition.dx / renderObject.size.width;
         final position = Duration(
           milliseconds: (duration.inMilliseconds * relative).round(),
         );
