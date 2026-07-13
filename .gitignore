@@ -32,3 +32,5 @@ migrate_working_dir/
 
 CLAUDE.md
 doc/*
+# local leak-analysis tooling, not part of the package
+leaks/
