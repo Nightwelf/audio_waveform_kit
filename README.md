@@ -56,6 +56,21 @@ AudioWaveformScope(
 
 `AudioWaveformScope` provides `AudioRecordingService`, `SpectrumAnalyzer`, and `AudioRecordingBloc` to the subtree.
 
+To plug in your own capture implementation — streaming PCM to disk instead of
+buffering it in memory, recording from a foreground service, a custom file
+location — pass `recordingService`:
+
+```dart
+AudioWaveformScope(
+  recordingService: MyDiskStreamingRecordingService(),
+  child: MyScreen(),
+)
+```
+
+The scope then uses that instance as-is and does **not** dispose it — its
+lifecycle is yours. Omit the parameter and the scope creates and owns an
+`AudioRecordingServiceImpl` as before.
+
 ### 2. Add a record button
 
 Use the built-in round button:
