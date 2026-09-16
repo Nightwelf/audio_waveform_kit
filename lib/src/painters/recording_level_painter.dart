@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:audio_waveform_kit/src/utils/level_scale.dart';
 import 'package:flutter/material.dart';
 
 class RecordingLevelPainter extends CustomPainter {
@@ -8,8 +9,11 @@ class RecordingLevelPainter extends CustomPainter {
     required this.barColor,
     this.barSpacing = 2.0,
     this.minBarHeightFraction = 0.04,
+    this.floorDb = -55.0,
+    this.ceilingDb = -15.0,
   });
 
+  /// RMS energy per window (non-negative), one value per bar.
   final List<double> samples;
   final Color barColor;
   final double barSpacing;
@@ -17,6 +21,13 @@ class RecordingLevelPainter extends CustomPainter {
   /// Minimum bar half-height as a fraction of the available half-height.
   /// Keeps silence visually alive (thin line instead of nothing).
   final double minBarHeightFraction;
+
+  /// Signal level (dBFS RMS) at which a bar is minimal — anything quieter
+  /// is silence.
+  final double floorDb;
+
+  /// Signal level (dBFS RMS) at which a bar reaches full height.
+  final double ceilingDb;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -29,7 +40,8 @@ class RecordingLevelPainter extends CustomPainter {
         .clamp(1.0, double.infinity);
 
     for (var i = 0; i < count; i++) {
-      final amp = samples[i].abs().clamp(0.0, 1.0);
+      final amp =
+          amplitudeForRms(samples[i], floorDb: floorDb, ceilingDb: ceilingDb);
       final halfHeight = math.max(amp * centerY, minHalfHeight);
       final x = i * (barWidth + barSpacing);
 
@@ -48,5 +60,10 @@ class RecordingLevelPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(RecordingLevelPainter oldDelegate) =>
-      oldDelegate.samples != samples || oldDelegate.barColor != barColor;
+      oldDelegate.samples != samples ||
+      oldDelegate.barColor != barColor ||
+      oldDelegate.barSpacing != barSpacing ||
+      oldDelegate.minBarHeightFraction != minBarHeightFraction ||
+      oldDelegate.floorDb != floorDb ||
+      oldDelegate.ceilingDb != ceilingDb;
 }

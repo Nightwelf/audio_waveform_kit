@@ -8,6 +8,7 @@ export 'src/services/audio_recording_service.dart';
 export 'src/services/spectrum_analyzer.dart';
 export 'src/utils/audio_utils.dart';
 export 'src/utils/platform_utils.dart';
+export 'src/utils/rms_bucket_accumulator.dart';
 export 'src/widgets/audio_record_button.dart';
 export 'src/widgets/audio_waveform_player.dart';
 export 'src/widgets/live_spectrum_display.dart';

@@ -21,9 +21,12 @@ class AudioRecordingState$Recording extends AudioRecordingState {
   });
 
   final Duration duration;
+
+  /// RMS energy per ~10 ms window (non-negative), a rolling window of the
+  /// latest values — a live envelope/level indicator.
   final List<double> waveformSamples;
 
-  /// RMS energy per 10 ms window — used for messenger-style waveform display.
+  /// RMS energy per ~10 ms window — used for messenger-style waveform display.
   final List<double> rmsSamples;
 
   /// Short window of consecutive raw PCM samples for oscilloscope display.
@@ -75,9 +78,12 @@ class AudioRecordingState$Finished extends AudioRecordingState {
   final Uint8List? wavBytes;
 
   final Duration duration;
+
+  /// RMS energy per ~10 ms window (non-negative), last maxWaveformSamples
+  /// windows of the recording.
   final List<double> waveformSamples;
 
-  /// RMS energy per 10 ms window — used for messenger-style waveform display.
+  /// RMS energy per ~10 ms window — used for messenger-style waveform display.
   final List<double> rmsSamples;
 
   final List<double> snapshotSamples;

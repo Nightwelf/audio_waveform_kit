@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:audio_waveform_kit/src/utils/level_scale.dart';
 import 'package:flutter/material.dart';
 
 /// Paints messenger-style waveform bars (WhatsApp / Telegram look).
@@ -55,8 +56,8 @@ class MessengerWaveformPainter extends CustomPainter {
       final double normalized;
       if (logarithmic) {
         if (rms <= 0) continue;
-        final db = (20 * math.log(rms) / math.ln10).clamp(minDbThreshold, 0.0);
-        normalized = (db - minDbThreshold) / (-minDbThreshold);
+        normalized =
+            amplitudeForRms(rms, floorDb: minDbThreshold, ceilingDb: 0);
       } else {
         normalized = rms / peak;
       }
@@ -82,5 +83,8 @@ class MessengerWaveformPainter extends CustomPainter {
   bool shouldRepaint(MessengerWaveformPainter oldDelegate) =>
       oldDelegate.samples != samples ||
       oldDelegate.barColor != barColor ||
-      oldDelegate.logarithmic != logarithmic;
+      oldDelegate.logarithmic != logarithmic ||
+      oldDelegate.silenceThreshold != silenceThreshold ||
+      oldDelegate.minDbThreshold != minDbThreshold ||
+      oldDelegate.barSpacing != barSpacing;
 }

@@ -1,5 +1,6 @@
 import 'package:audio_waveform_kit/src/controllers/audio_recording_bloc.dart';
 import 'package:audio_waveform_kit/src/painters/waveform_painter.dart';
+import 'package:audio_waveform_kit/src/widgets/string_snapshot_display.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +15,8 @@ class WaveformDisplay extends StatelessWidget {
     this.strokeWidth = 2.0,
     this.height = 80.0,
     this.style = WaveformStyle.envelope,
+    this.floorDb = -55.0,
+    this.ceilingDb = -15.0,
   });
 
   final Color? waveColor;
@@ -22,8 +25,24 @@ class WaveformDisplay extends StatelessWidget {
   final double height;
   final WaveformStyle style;
 
+  /// See [WaveformPainter.floorDb]. Ignored for `WaveformStyle.string`.
+  final double floorDb;
+
+  /// See [WaveformPainter.ceilingDb]. Ignored for `WaveformStyle.string`.
+  final double ceilingDb;
+
   @override
   Widget build(BuildContext context) {
+    // Струна — уже готовый рендерер снапшота, а не дубль на децимированных
+    // отсчётах: он читает snapshotSamples и умеет форму и триггер по нулю.
+    if (style == WaveformStyle.string) {
+      return StringSnapshotDisplay(
+        stringColor: waveColor,
+        strokeWidth: strokeWidth,
+        height: height,
+      );
+    }
+
     final theme = Theme.of(context);
 
     return BlocBuilder<AudioRecordingBloc, AudioRecordingState>(
@@ -46,7 +65,8 @@ class WaveformDisplay extends StatelessWidget {
               waveColor: waveColor ?? theme.colorScheme.primary,
               baselineColor: baselineColor ?? theme.colorScheme.outlineVariant,
               strokeWidth: strokeWidth,
-              style: style,
+              floorDb: floorDb,
+              ceilingDb: ceilingDb,
             ),
           ),
         );

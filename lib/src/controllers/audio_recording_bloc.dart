@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:audio_waveform_kit/src/constants.dart';
 import 'package:audio_waveform_kit/src/models/recording_result.dart';
@@ -55,11 +56,16 @@ class AudioRecordingBloc
   final int _maxSnapshotSamples;
   final RmsBucketAccumulator _rms;
 
+  /// Окно RMS: 10 мс при частоте записи из [spectrumConfig].
+  late final int _rmsWindowSize = math.max(1, spectrumConfig.sampleRate ~/ 100);
+
   StreamSubscription<Uint8List>? _audioStreamSub;
   Timer? _timer;
   DateTime? _startTime;
   final List<double> _waveformSamples = [];
   final List<double> _snapshotSamples = [];
+  double _rmsSumSq = 0;
+  int _rmsCount = 0;
   DateTime? _lastSpectrumAt;
   List<double> _lastSpectrum = const [];
 
@@ -71,6 +77,8 @@ class AudioRecordingBloc
       _waveformSamples.clear();
       _snapshotSamples.clear();
       _rms.reset();
+      _rmsSumSq = 0;
+      _rmsCount = 0;
       _lastSpectrumAt = null;
       _lastSpectrum = const [];
       _startTime = DateTime.now();
@@ -90,6 +98,14 @@ class AudioRecordingBloc
       _audioStreamSub = stream.listen(
         _processChunk,
         onError: (Object _) => add(const AudioRecordingEvent$Stop()),
+        // Сервис закрыл поток сам — например, запись остановили из
+        // уведомления foreground service. Без этого bloc остался бы в
+        // Recording с тикающим таймером.
+        onDone: () {
+          if (!isClosed && state is AudioRecordingState$Recording) {
+            add(const AudioRecordingEvent$Stop());
+          }
+        },
       );
 
       _timer = Timer.periodic(
@@ -110,30 +126,38 @@ class AudioRecordingBloc
   }
 
   void _processChunk(Uint8List chunk) {
-    final int16View = chunk.buffer.asInt16List();
+    // Чанк с платформенного канала — вью в буфер сообщения, со своими
+    // offsetInBytes и длиной. Через `chunk.buffer` читались бы чужие байты
+    // (служебный заголовок сообщения, соседние куски), а при нечётном
+    // смещении PCM16 разъезжается на байт и любой звук превращается в шум
+    // полной громкости. В файл при этом пишется корректный чанк — расходятся
+    // только визуализация и спектр.
+    final int16View = chunk.offsetInBytes.isEven
+        ? Int16List.sublistView(chunk)
+        : Int16List.sublistView(Uint8List.fromList(chunk));
 
-    // Downsampled history for waveform/level displays (signed, for string style)
-    for (var i = 0; i < int16View.length; i += 441) {
-      _waveformSamples.add(int16View[i] / kInt16Scale);
+    // RMS-энергия по окнам ~10 мс (частота — из spectrumConfig.sampleRate).
+    // Остаток окна переносится между чанками через _rmsSumSq/_rmsCount —
+    // иначе огибающая зависит от того, как плагин нарезал PCM. Каждое
+    // завершённое окно идёт и в _rms (бакеты на всю запись, для мессенджера),
+    // и в _waveformSamples (скользящее окно последних значений, живой индикатор).
+    for (var i = 0; i < int16View.length; i++) {
+      final s = int16View[i] / kInt16Scale;
+      _rmsSumSq += s * s;
+      _rmsCount++;
+      if (_rmsCount >= _rmsWindowSize) {
+        final rms = math.sqrt(_rmsSumSq / _rmsCount);
+        _rms.add(rms);
+        _waveformSamples.add(rms);
+        _rmsSumSq = 0;
+        _rmsCount = 0;
+      }
     }
     if (_waveformSamples.length > _maxWaveformSamples) {
       _waveformSamples.removeRange(
         0,
         _waveformSamples.length - _maxWaveformSamples,
       );
-    }
-
-    // RMS energy per 10 ms window (~441 samples at 44100 Hz)
-    const rmsWindow = 441;
-    final windows = int16View.length ~/ rmsWindow;
-    for (var w = 0; w < windows; w++) {
-      var sumSq = 0.0;
-      final base = w * rmsWindow;
-      for (var j = base; j < base + rmsWindow; j++) {
-        final s = int16View[j] / kInt16Scale;
-        sumSq += s * s;
-      }
-      _rms.add(math.sqrt(sumSq / rmsWindow));
     }
 
     // Raw consecutive samples for oscilloscope/string display

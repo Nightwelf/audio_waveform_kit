@@ -15,12 +15,36 @@ class StringSnapshotDisplay extends StatelessWidget {
     this.strokeWidth = 1.5,
     this.height = 80.0,
     this.minAmplitudeFraction = 0.02,
+    this.floorDb = -55.0,
+    this.ceilingDb = -15.0,
+    this.autoGain = false,
+    this.maxGain = 12.0,
+    this.pointSpacing = 3.0,
+    this.alignToZeroCrossing = true,
   });
 
   final Color? stringColor;
   final double strokeWidth;
   final double height;
   final double minAmplitudeFraction;
+
+  /// See [StringSnapshotPainter.floorDb].
+  final double floorDb;
+
+  /// See [StringSnapshotPainter.ceilingDb].
+  final double ceilingDb;
+
+  /// See [StringSnapshotPainter.autoGain].
+  final bool autoGain;
+
+  /// See [StringSnapshotPainter.maxGain].
+  final double maxGain;
+
+  /// See [StringSnapshotPainter.pointSpacing].
+  final double pointSpacing;
+
+  /// See [StringSnapshotPainter.alignToZeroCrossing].
+  final bool alignToZeroCrossing;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +70,12 @@ class StringSnapshotDisplay extends StatelessWidget {
               stringColor: stringColor ?? theme.colorScheme.primary,
               strokeWidth: strokeWidth,
               minAmplitudeFraction: minAmplitudeFraction,
+              floorDb: floorDb,
+              ceilingDb: ceilingDb,
+              autoGain: autoGain,
+              maxGain: maxGain,
+              pointSpacing: pointSpacing,
+              alignToZeroCrossing: alignToZeroCrossing,
             ),
           ),
         );

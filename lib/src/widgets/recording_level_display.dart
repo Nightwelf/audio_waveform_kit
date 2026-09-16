@@ -8,8 +8,9 @@ const _listEquality = ListEquality<double>();
 
 /// Messenger-style amplitude bars.
 ///
-/// Each bar height reflects the raw amplitude at that moment —
-/// silence → thin bar, speech → tall bar, no cross-normalization.
+/// Each bar height reflects the RMS level at that moment on a logarithmic
+/// scale ([floorDb]…[ceilingDb]) — silence → thin bar, speech → tall bar,
+/// no cross-normalization.
 class RecordingLevelDisplay extends StatelessWidget {
   const RecordingLevelDisplay({
     super.key,
@@ -17,12 +18,20 @@ class RecordingLevelDisplay extends StatelessWidget {
     this.barSpacing = 2.0,
     this.height = 64.0,
     this.minBarHeightFraction = 0.04,
+    this.floorDb = -55.0,
+    this.ceilingDb = -15.0,
   });
 
   final Color? barColor;
   final double barSpacing;
   final double height;
   final double minBarHeightFraction;
+
+  /// See [RecordingLevelPainter.floorDb].
+  final double floorDb;
+
+  /// See [RecordingLevelPainter.ceilingDb].
+  final double ceilingDb;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +57,8 @@ class RecordingLevelDisplay extends StatelessWidget {
               barColor: barColor ?? theme.colorScheme.primary,
               barSpacing: barSpacing,
               minBarHeightFraction: minBarHeightFraction,
+              floorDb: floorDb,
+              ceilingDb: ceilingDb,
             ),
           ),
         );

@@ -18,8 +18,13 @@ const _listEquality = ListEquality<double>();
 /// All accumulated samples are shown, scaled to fit the widget width.
 ///
 /// Two amplitude scaling modes via [logarithmic]:
-/// - false (default): global peak normalisation (WhatsApp / Telegram look).
-/// - true: dB scaling — quiet speech stays visible.
+/// - true (default): dB scaling — quiet speech stays visible. Needed here
+///   because peak normalisation over a scrolling window jumps on every
+///   frame, and without a window a single loud burst flattens everything
+///   before it.
+/// - false: global peak normalisation (WhatsApp / Telegram look) — a
+///   deliberate choice for the static, whole-clip view instead
+///   (`StaticMessengerWaveformDisplay`).
 class MessengerWaveformDisplay extends StatelessWidget {
   const MessengerWaveformDisplay({
     super.key,
@@ -27,7 +32,7 @@ class MessengerWaveformDisplay extends StatelessWidget {
     this.barColor,
     this.barSpacing = 2.0,
     this.silenceThreshold = 0.02,
-    this.logarithmic = false,
+    this.logarithmic = true,
     this.minDbThreshold = -60.0,
     this.windowSize,
   });

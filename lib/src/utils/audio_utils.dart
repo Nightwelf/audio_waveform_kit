@@ -57,7 +57,8 @@ abstract class AudioUtils {
   /// Reads raw PCM16LE samples from WAV bytes, skipping the 44-byte header.
   static List<double> wavToSamples(Uint8List wavBytes) {
     if (wavBytes.length < 44) return [];
-    final int16View = wavBytes.buffer.asInt16List(44);
+    // sublistView, а не wavBytes.buffer: у вью свои смещение и длина.
+    final int16View = Int16List.sublistView(wavBytes, 44);
     return List.generate(int16View.length, (i) => int16View[i] / kInt16Scale);
   }
 

@@ -1,23 +1,32 @@
-import 'dart:math' as math;
-
+import 'package:audio_waveform_kit/src/utils/level_scale.dart';
 import 'package:flutter/material.dart';
 
 enum WaveformStyle { envelope, string }
 
+/// Draws an RMS envelope. `WaveformStyle.string` is handled at the widget
+/// level by `WaveformDisplay` rendering `StringSnapshotDisplay` instead —
+/// this painter only ever draws the envelope.
 class WaveformPainter extends CustomPainter {
   WaveformPainter({
     required this.samples,
     required this.waveColor,
     required this.baselineColor,
     this.strokeWidth = 2.0,
-    this.style = WaveformStyle.envelope,
+    this.floorDb = -55.0,
+    this.ceilingDb = -15.0,
   });
 
+  /// RMS energy per window (non-negative).
   final List<double> samples;
   final Color waveColor;
   final Color baselineColor;
   final double strokeWidth;
-  final WaveformStyle style;
+
+  /// Signal level (dBFS RMS) at which the envelope lies flat.
+  final double floorDb;
+
+  /// Signal level (dBFS RMS) at which the envelope fills the box.
+  final double ceilingDb;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -33,31 +42,13 @@ class WaveformPainter extends CustomPainter {
 
     if (samples.isEmpty) return;
 
-    // Normalize: find peak absolute value, scale so max fills the display.
-    // If recording is very quiet (peak < 0.01), don't amplify noise.
-    final peak = samples.fold<double>(0, (m, s) => math.max(m, s.abs()));
-    final scale = peak > 0.01 ? 1.0 / peak : 1.0;
-
-    switch (style) {
-      case WaveformStyle.envelope:
-        _paintEnvelope(canvas, size, centerY, scale);
-      case WaveformStyle.string:
-        _paintString(canvas, size, centerY, scale);
-    }
-  }
-
-  void _paintEnvelope(
-    Canvas canvas,
-    Size size,
-    double centerY,
-    double scale,
-  ) {
     final step = size.width / samples.length;
     final path = Path();
 
     for (var i = 0; i < samples.length; i++) {
       final x = i * step;
-      final amp = (samples[i].abs() * scale).clamp(0.0, 1.0);
+      final amp =
+          amplitudeForRms(samples[i], floorDb: floorDb, ceilingDb: ceilingDb);
       final y = centerY - amp * centerY;
       if (i == 0) {
         path.moveTo(x, y);
@@ -68,7 +59,8 @@ class WaveformPainter extends CustomPainter {
 
     for (var i = samples.length - 1; i >= 0; i--) {
       final x = i * step;
-      final amp = (samples[i].abs() * scale).clamp(0.0, 1.0);
+      final amp =
+          amplitudeForRms(samples[i], floorDb: floorDb, ceilingDb: ceilingDb);
       final y = centerY + amp * centerY;
       path.lineTo(x, y);
     }
@@ -93,53 +85,12 @@ class WaveformPainter extends CustomPainter {
       );
   }
 
-  void _paintString(
-    Canvas canvas,
-    Size size,
-    double centerY,
-    double scale,
-  ) {
-    final step = size.width / samples.length;
-
-    final path = Path();
-    for (var i = 0; i < samples.length; i++) {
-      final x = i * step;
-      final y = centerY - (samples[i] * scale).clamp(-1.0, 1.0) * centerY;
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    canvas
-      // Glow layer
-      ..drawPath(
-        path,
-        Paint()
-          ..color = waveColor.withValues(alpha: 0.2)
-          ..strokeWidth = strokeWidth * 4
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
-          ..isAntiAlias = true,
-      )
-      // Core line
-      ..drawPath(
-        path,
-        Paint()
-          ..color = waveColor
-          ..strokeWidth = strokeWidth
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..isAntiAlias = true,
-      );
-  }
-
   @override
   bool shouldRepaint(WaveformPainter oldDelegate) =>
       oldDelegate.samples != samples ||
       oldDelegate.waveColor != waveColor ||
+      oldDelegate.baselineColor != baselineColor ||
       oldDelegate.strokeWidth != strokeWidth ||
-      oldDelegate.style != style;
+      oldDelegate.floorDb != floorDb ||
+      oldDelegate.ceilingDb != ceilingDb;
 }

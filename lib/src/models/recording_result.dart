@@ -21,7 +21,8 @@ class RecordingResult {
 
   final Duration duration;
 
-  /// Нормализованные амплитуды (downsampled) для визуализации огибающей.
+  /// RMS-энергия по ~10 мс окнам (неотрицательные значения), последние
+  /// maxWaveformSamples окон записи — для визуализации огибающей.
   final List<double> waveformSamples;
 
   /// RMS-энергия по 10 мс окнам — для мессенджерного вейвформа.

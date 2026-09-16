@@ -27,6 +27,7 @@ class _AudioRecordingEvent$WaveformUpdated extends AudioRecordingEvent {
     required this.liveSpectrum,
   });
 
+  /// RMS energy per ~10 ms window (non-negative), rolling window.
   final List<double> samples;
   final List<double> rmsSamples;
   final List<double> snapshot;

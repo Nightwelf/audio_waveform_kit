@@ -187,9 +187,46 @@ Idle → [Start] → Recording → [Stop] → Finished
 | State | Notable fields |
 |-------|----------------|
 | `AudioRecordingState$Idle` | — |
-| `AudioRecordingState$Recording` | `duration`, `waveformSamples`, `snapshotSamples`, `liveSpectrumData` |
+| `AudioRecordingState$Recording` | `duration`, `waveformSamples`, `rmsSamples`, `snapshotSamples`, `liveSpectrumData` |
 | `AudioRecordingState$Finished` | `filePath`, `wavBytes` (web only), `duration`, `waveformSamples`, `rmsSamples`, `snapshotSamples`, `spectrumData`, `spectrumTimeline` |
 | `AudioRecordingState$Error` | `message` |
+
+## Level scale
+
+`StringSnapshotDisplay`, `WaveformDisplay` (envelope style), `RecordingLevelDisplay`
+and `StaticLevelDisplay` all size themselves the same way: RMS level of the
+signal mapped logarithmically onto `floorDb`…`ceilingDb`. A linear gain cannot
+show both room noise and speech — they sit 30–40 dB apart, so one multiplier
+either buries the noise at zero or clips speech at the edge of the box.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `floorDb` | `-55.0` | RMS level at which the display is empty/flat — anything quieter is silence |
+| `ceilingDb` | `-15.0` | RMS level at which the display reaches full size |
+
+`MessengerWaveformDisplay` (live) uses the same idea via `logarithmic: true` and
+`minDbThreshold` (equivalent to `floorDb`, `ceilingDb` fixed at `0`).
+
+## Oscilloscope tuning
+
+`StringSnapshotDisplay` and `StaticStringSnapshotDisplay` draw raw PCM, so the
+defaults matter. The swing of the string comes from the signal level on a dB
+scale, the wave shape is normalized separately — a linear gain cannot show both
+room noise and speech, they are 30–40 dB apart.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `floorDb` | `-55.0` | RMS level at which the string lies flat — anything quieter is silence |
+| `ceilingDb` | `-15.0` | RMS level at which the string swings across the whole box |
+| `pointSpacing` | `3.0` | Logical pixels per drawn point; samples in between are averaged (low-pass). `0` draws every sample |
+| `alignToZeroCrossing` | `true` | Starts the curve at a rising zero crossing so the wave does not slide horizontally |
+| `minAmplitudeFraction` | `0.02` | Peak below this draws a flat resting string, before the level is even measured |
+| `autoGain` | `false` | Legacy per-frame peak normalization — quiet noise fills the whole box and the string jumps between frames |
+| `maxGain` | `12.0` | Upper bound for `autoGain` amplification |
+
+Too still while talking — raise `floorDb` (`-45`) or lower `ceilingDb` (`-20`).
+Too lively while silent — lower `floorDb` (`-65`).
+Pre-1.3 look: `autoGain: true, pointSpacing: 0, alignToZeroCrossing: false`.
 
 ## SpectrumConfig
 

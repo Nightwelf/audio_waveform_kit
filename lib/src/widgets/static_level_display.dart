@@ -11,6 +11,8 @@ class StaticLevelDisplay extends StatelessWidget {
     this.barSpacing = 2.0,
     this.height = 40.0,
     this.minBarHeightFraction = 0.15,
+    this.floorDb = -55.0,
+    this.ceilingDb = -15.0,
   });
 
   final List<double> samples;
@@ -18,6 +20,12 @@ class StaticLevelDisplay extends StatelessWidget {
   final double barSpacing;
   final double height;
   final double minBarHeightFraction;
+
+  /// See [RecordingLevelPainter.floorDb].
+  final double floorDb;
+
+  /// See [RecordingLevelPainter.ceilingDb].
+  final double ceilingDb;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +38,8 @@ class StaticLevelDisplay extends StatelessWidget {
           barColor: barColor ?? Theme.of(context).colorScheme.primary,
           barSpacing: barSpacing,
           minBarHeightFraction: minBarHeightFraction,
+          floorDb: floorDb,
+          ceilingDb: ceilingDb,
         ),
       ),
     );
